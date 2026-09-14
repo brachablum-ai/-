@@ -1,0 +1,19 @@
+<footer>
+  <div class="wrap">
+    <div class="col">
+      <h3>{{ site.businessName }}</h3>
+      <p>{{ site.tagline }} — גיל הרך, תינוקות, הכנה לכיתה א׳, משפחות, גיל הזהב, קניונים ואירועים.</p>
+    </div>
+    <div class="col">
+      <h3>יצירת קשר</h3>
+      <p><a href="https://wa.me/{{ site.whatsappNumber }}" target="_blank" rel="noopener">וואטסאפ</a> · <a href="mailto:{{ site.email }}">{{ site.email }}</a></p>
+    </div>
+    <div class="col">
+      <h3>עמודים</h3>
+      <p>
+        {% for item in nav %}{% if not loop.first %} · {% endif %}<a href="{{ item.url }}">{{ item.label }}</a>{% endfor %}
+      </p>
+    </div>
+  </div>
+  <p class="fine">© {% year %} {{ site.ownerName }} — {{ site.businessName }}</p>
+</footer>

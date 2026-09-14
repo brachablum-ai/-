@@ -1,0 +1,11 @@
+<header class="site">
+  <div class="header-row">
+    <a class="logo" href="/">{{ site.businessName }} <span>{{ site.ownerName }}</span></a>
+    <button class="nav-toggle" id="navToggle" aria-label="פתיחת תפריט" aria-controls="mainNav" aria-expanded="false">☰</button>
+    <nav class="main" id="mainNav" aria-label="ניווט ראשי">
+      {% for item in nav %}
+      <a href="{{ item.url }}"{% if item.url == page.url %} aria-current="page"{% endif %}>{{ item.label }}</a>
+      {% endfor %}
+    </nav>
+  </div>
+</header>
