@@ -1,0 +1,509 @@
+<title>לוח המעונות של ברכה</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Assistant:wght@400;500;600;700&family=Frank+Ruhl+Libre:wght@500;700&display=swap">
+<style>
+/* Layout: one phone-first column. Summary (holiday, pipeline, today's calls) above the full list; each daycare opens in place. */
+:root{
+  --bg:#F3F7F5; --surface:#FFFFFF; --surface-2:#EAF2EF; --ink:#1B3A36; --muted:#5B736F; --line:#D9E6E2;
+  --teal:#0F6B66; --teal-strong:#0A4A47; --orange:#E8823A; --orange-ink:#9A4E1C; --green:#5E8A2E;
+  --on-accent:#FFFFFF;
+  --st-new-bg:#EDF2F0; --st-new-fg:#3E5551;
+  --st-active-bg:#D9EFEB; --st-active-fg:#0A4A47;
+  --st-offer-bg:#FCE7D6; --st-offer-fg:#8F4718;
+  --st-won-bg:#E3EFD3; --st-won-fg:#3F6119;
+  --st-parked-bg:#ECEFEE; --st-parked-fg:#667774;
+  --font-display:"Frank Ruhl Libre", "David Libre", Georgia, serif;
+  --font-body:"Assistant", "Segoe UI", Arial, sans-serif;
+  --radius:12px;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#0F1C1B; --surface:#172826; --surface-2:#1E3431; --ink:#E4EFEC; --muted:#9BB2AD; --line:#29443F;
+  --teal:#5BBDB4; --teal-strong:#8AD3CC; --orange:#F29A55; --orange-ink:#F6BE8E; --green:#A3CB72;
+  --on-accent:#10201E;
+  --st-new-bg:#22312F; --st-new-fg:#C3D4D0;
+  --st-active-bg:#173E3A; --st-active-fg:#9EDDD6;
+  --st-offer-bg:#4A2D17; --st-offer-fg:#F6BE8E;
+  --st-won-bg:#2C3D1C; --st-won-fg:#C2E09A;
+  --st-parked-bg:#20292A; --st-parked-fg:#8C9C99;
+  color-scheme:dark;
+}}
+:root[data-theme="dark"]{
+  --bg:#0F1C1B; --surface:#172826; --surface-2:#1E3431; --ink:#E4EFEC; --muted:#9BB2AD; --line:#29443F;
+  --teal:#5BBDB4; --teal-strong:#8AD3CC; --orange:#F29A55; --orange-ink:#F6BE8E; --green:#A3CB72;
+  --on-accent:#10201E;
+  --st-new-bg:#22312F; --st-new-fg:#C3D4D0;
+  --st-active-bg:#173E3A; --st-active-fg:#9EDDD6;
+  --st-offer-bg:#4A2D17; --st-offer-fg:#F6BE8E;
+  --st-won-bg:#2C3D1C; --st-won-fg:#C2E09A;
+  --st-parked-bg:#20292A; --st-parked-fg:#8C9C99;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{background:var(--bg); color:var(--ink); font-family:var(--font-body); font-size:16px; line-height:1.55; direction:rtl}
+.app{max-width:760px; margin:0 auto; padding-left:max(16px, env(safe-area-inset-left, 0px)); padding-right:max(16px, env(safe-area-inset-right, 0px)); padding-block:20px 56px; display:grid; gap:22px}
+h1,h2{font-family:var(--font-display); color:var(--teal-strong); line-height:1.2; margin:0; text-wrap:balance}
+h1{font-size:clamp(1.8rem, 6vw, 2.3rem); font-weight:700}
+h2{font-size:1.25rem; font-weight:700}
+button,input,select,textarea{font:inherit; color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:3px solid var(--orange); outline-offset:2px}
+
+/* Header */
+.top{display:grid; gap:10px}
+.eyebrow{font-size:.85rem; font-weight:600; letter-spacing:.04em; color:var(--teal)}
+.sub{color:var(--muted); margin:0}
+.holiday{display:flex; align-items:center; gap:10px; flex-wrap:wrap; background:var(--surface); border:1px solid var(--line); border-radius:var(--radius); padding:12px 14px}
+.holiday .days{font-family:var(--font-display); font-size:1.6rem; font-weight:700; color:var(--orange-ink); font-variant-numeric:tabular-nums; line-height:1}
+.holiday .txt{display:grid; gap:2px; min-width:0}
+.holiday strong{font-weight:700}
+.holiday small{color:var(--muted)}
+.notice{background:var(--st-offer-bg); color:var(--st-offer-fg); border-radius:var(--radius); padding:12px 14px; margin:0}
+
+/* Pipeline */
+.pipeline{display:grid; gap:10px}
+.bar{display:flex; height:14px; border-radius:7px; overflow:hidden; background:var(--surface-2)}
+.bar span{display:block; min-width:0}
+.legend{display:grid; grid-template-columns:repeat(5, minmax(0,1fr)); gap:6px}
+.legend button{display:grid; gap:0; text-align:center; background:var(--surface); border:1px solid var(--line); border-radius:10px; padding:8px 4px}
+.legend button[aria-pressed="true"]{border-color:var(--teal); box-shadow:inset 0 0 0 1px var(--teal)}
+.legend b{font-family:var(--font-display); font-size:1.35rem; font-variant-numeric:tabular-nums; line-height:1.2}
+.legend span{font-size:.78rem; color:var(--muted)}
+.dot{display:inline-block; width:9px; height:9px; border-radius:50%; margin-inline-end:4px; vertical-align:middle}
+.g-new{background:var(--st-new-fg)} .g-active{background:var(--teal)} .g-offer{background:var(--orange)} .g-won{background:var(--green)} .g-parked{background:var(--st-parked-fg)}
+
+/* Today */
+.section{display:grid; gap:12px}
+.section-head{display:flex; align-items:baseline; justify-content:space-between; gap:12px; flex-wrap:wrap}
+.section-head p{margin:0; color:var(--muted); font-size:.9rem}
+.today{display:grid; gap:8px; list-style:none; margin:0; padding:0}
+.today button{width:100%; display:grid; grid-template-columns:auto 1fr auto; align-items:center; gap:12px; text-align:start; background:var(--surface); border:1px solid var(--line); border-radius:var(--radius); padding:12px 14px}
+.today .when{font-size:.8rem; font-weight:700; padding:3px 8px; border-radius:999px; white-space:nowrap}
+.when.late{background:var(--orange); color:var(--on-accent)}
+.when.now{background:var(--st-active-bg); color:var(--st-active-fg)}
+.when.fresh{background:var(--st-new-bg); color:var(--st-new-fg)}
+.today .who{display:grid; min-width:0}
+.today .who b{overflow-wrap:anywhere}
+.today .who small{color:var(--muted); overflow-wrap:anywhere}
+.today .go{color:var(--teal); font-weight:700; font-size:.9rem}
+.empty{background:var(--surface); border:1px dashed var(--line); border-radius:var(--radius); padding:16px; color:var(--muted); margin:0}
+
+/* Filters */
+.tools{display:grid; gap:10px}
+.search{width:100%; background:var(--surface); border:1px solid var(--line); border-radius:10px; padding:10px 12px}
+.chips{display:flex; gap:6px; flex-wrap:wrap}
+.chip{background:var(--surface); border:1px solid var(--line); border-radius:999px; padding:5px 12px; font-size:.9rem}
+.chip[aria-pressed="true"]{background:var(--teal); border-color:var(--teal); color:var(--on-accent)}
+
+/* Lead cards */
+.list{display:grid; gap:10px}
+.lead{background:var(--surface); border:1px solid var(--line); border-radius:var(--radius); overflow:hidden}
+.lead.open{border-color:var(--teal)}
+.lead-head{width:100%; display:grid; grid-template-columns:auto 1fr auto; gap:12px; align-items:start; text-align:start; background:none; border:0; padding:14px}
+.pri{width:28px; height:28px; border-radius:50%; display:grid; place-items:center; font-weight:700; font-size:.85rem; border:2px solid var(--teal); color:var(--teal)}
+.pri.A{background:var(--orange); border-color:var(--orange); color:var(--on-accent)}
+.pri.C{border-color:var(--line); color:var(--muted)}
+.lead-main{display:grid; gap:2px; min-width:0}
+.lead-name{font-weight:700; font-size:1.05rem; overflow-wrap:anywhere}
+.lead-sub{color:var(--muted); font-size:.88rem; overflow-wrap:anywhere}
+.lead-next{font-size:.88rem; overflow-wrap:anywhere}
+.lead-next .due{font-weight:700; color:var(--orange-ink)}
+.status{font-size:.8rem; font-weight:700; padding:4px 10px; border-radius:999px; white-space:nowrap}
+.st-new{background:var(--st-new-bg); color:var(--st-new-fg)}
+.st-active{background:var(--st-active-bg); color:var(--st-active-fg)}
+.st-offer{background:var(--st-offer-bg); color:var(--st-offer-fg)}
+.st-won{background:var(--st-won-bg); color:var(--st-won-fg)}
+.st-parked{background:var(--st-parked-bg); color:var(--st-parked-fg)}
+
+.panel{border-top:1px solid var(--line); padding:14px; display:grid; gap:16px; background:var(--surface)}
+.block{display:grid; gap:8px}
+.label{font-size:.78rem; font-weight:700; letter-spacing:.04em; color:var(--muted)}
+.contact{display:flex; flex-wrap:wrap; gap:8px; align-items:center}
+.phone{font-family:var(--font-body); font-weight:700; font-size:1.1rem; font-variant-numeric:tabular-nums; direction:ltr; unicode-bidi:isolate; user-select:all}
+.facts{display:grid; grid-template-columns:repeat(auto-fit, minmax(140px, 1fr)); gap:6px 16px; margin:0}
+.facts div{min-width:0}
+.facts dt{font-size:.78rem; color:var(--muted)}
+.facts dd{margin:0; overflow-wrap:anywhere}
+.btn{border:1px solid var(--line); background:var(--surface-2); border-radius:10px; padding:8px 12px; font-weight:600; font-size:.92rem; text-decoration:none; color:var(--ink); display:inline-flex; align-items:center; gap:6px}
+.btn.primary{background:var(--teal); border-color:var(--teal); color:var(--on-accent)}
+.btn.wa{background:var(--st-won-bg); color:var(--st-won-fg); border-color:transparent}
+.row{display:flex; flex-wrap:wrap; gap:8px}
+.statuses{display:flex; flex-wrap:wrap; gap:6px}
+.statuses button{border:1px solid transparent; border-radius:999px; padding:5px 11px; font-size:.86rem; font-weight:600}
+.statuses button[aria-pressed="true"]{box-shadow:0 0 0 2px var(--ink)}
+.field{display:grid; gap:4px}
+.field label{font-size:.85rem; font-weight:600}
+.field input,.field textarea{width:100%; background:var(--bg); border:1px solid var(--line); border-radius:10px; padding:9px 11px}
+.field textarea{min-height:84px; resize:vertical}
+.two{display:grid; grid-template-columns:1fr 1fr; gap:10px}
+.two > *{min-width:0}
+.msg{width:100%; min-height:190px; background:var(--bg); border:1px solid var(--line); border-radius:10px; padding:10px 12px; line-height:1.5; resize:vertical}
+.questions{margin:0; padding-inline-start:20px; display:grid; gap:2px}
+.hint{color:var(--muted); font-size:.85rem; margin:0}
+
+/* Add form */
+details.add{background:var(--surface); border:1px solid var(--line); border-radius:var(--radius)}
+details.add summary{padding:14px; font-weight:700; color:var(--teal); cursor:pointer}
+.add form{padding:0 14px 14px; display:grid; gap:10px}
+.field select{width:100%; background:var(--bg); border:1px solid var(--line); border-radius:10px; padding:9px 11px}
+
+footer{color:var(--muted); font-size:.85rem; display:grid; gap:6px}
+footer p{margin:0; max-width:65ch}
+
+.toast{position:fixed; left:50%; transform:translateX(-50%); bottom:calc(18px + env(safe-area-inset-bottom, 0px)); background:var(--teal-strong); color:var(--bg); padding:10px 18px; border-radius:999px; font-weight:600; box-shadow:0 6px 18px rgba(0,0,0,.18); z-index:20; max-width:calc(100% - 32px)}
+@media (max-width:420px){ .two{grid-template-columns:1fr} .legend span{font-size:.72rem} }
+@media (prefers-reduced-motion: reduce){ *{scroll-behavior:auto !important} }
+</style>
+
+<div class="app" dir="rtl" lang="he">
+  <header class="top">
+    <div class="eyebrow">ברכה בתנועה</div>
+    <h1>לוח המעונות</h1>
+    <p class="sub" id="sub">יבנה · גיל 0–3</p>
+    <div class="holiday" id="holiday" hidden></div>
+    <p class="notice" id="notice" hidden></p>
+  </header>
+
+  <section class="pipeline" aria-label="איפה אני עומדת">
+    <div class="bar" id="bar" aria-hidden="true"></div>
+    <div class="legend" id="legend"></div>
+  </section>
+
+  <section class="section" aria-labelledby="today-h">
+    <div class="section-head">
+      <h2 id="today-h">למי לחזור היום</h2>
+      <p id="today-note"></p>
+    </div>
+    <ul class="today" id="today"></ul>
+  </section>
+
+  <section class="section" aria-labelledby="all-h">
+    <div class="section-head">
+      <h2 id="all-h">כל המעונות</h2>
+      <p id="count"></p>
+    </div>
+    <div class="tools">
+      <input class="search" id="search" type="search" placeholder="חיפוש לפי שם, רחוב או רשת" aria-label="חיפוש מעון">
+      <div class="chips" id="filters" role="group" aria-label="סינון"></div>
+    </div>
+    <div class="list" id="list"></div>
+  </section>
+
+  <details class="add" id="add">
+    <summary>+ הוספת מעון חדש</summary>
+    <form id="add-form" novalidate>
+      <div class="field"><label for="add-name">שם המעון</label><input id="add-name" required placeholder="למשל: מעון הדקל"></div>
+      <div class="two">
+        <div class="field"><label for="add-address">כתובת</label><input id="add-address" placeholder="רחוב ומספר, עיר"></div>
+        <div class="field"><label for="add-phone">טלפון עסקי</label><input id="add-phone" inputmode="tel" dir="ltr"></div>
+      </div>
+      <div class="two">
+        <div class="field"><label for="add-type">סוג</label>
+          <select id="add-type">
+            <option>מעון פרטי</option><option>רשת ארצית (מוכר)</option><option>רשת מעונות המתנ"ס</option><option>מעון יום</option><option>משפחתון</option>
+          </select></div>
+        <div class="field"><label for="add-pri">עדיפות</label>
+          <select id="add-pri"><option value="A">A · חם</option><option value="B" selected>B</option><option value="C">C</option></select></div>
+      </div>
+      <div><button class="btn primary" type="submit">הוספה ללוח</button></div>
+    </form>
+  </details>
+
+  <footer>
+    <p>הרשימה נאספה ממדריכים ציבוריים (בדרך לגן, דפי זהב, אתרי הרשתות והמתנ"ס) בנובמבר 2026. כדאי לאמת כל מעון בשיחה קצרה לפני פנייה.</p>
+    <p>הלוח פרטי שלך. אפשר גם לבקש מ-Claude לעדכן אותו, למשל: "תעדכן בלוח שדיברתי עם ליטף וביקשו הצעה".</p>
+  </footer>
+</div>
+<div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+
+<script>
+(function(){
+  const STATUSES = [
+    {v:"חדש", g:"new"}, {v:"לאמת", g:"new"}, {v:"נוצר קשר", g:"active"}, {v:"פגישה נקבעה", g:"active"},
+    {v:"הצעה נשלחה", g:"offer"}, {v:"שיעור ניסיון", g:"offer"}, {v:"לקוחה", g:"won"},
+    {v:"לא עכשיו", g:"parked"}, {v:"לא רלוונטי", g:"parked"}
+  ];
+  const GROUPS = [
+    {g:"new", label:"חדש"}, {g:"active", label:"בקשר"}, {g:"offer", label:"הצעה"},
+    {g:"won", label:"לקוחות"}, {g:"parked", label:"בהמתנה"}
+  ];
+  const HOLIDAYS = [
+    {name:"חנוכה", start:"2026-12-04", end:"2026-12-12", when:"נדליק נר ראשון בערב 4.12"},
+    {name:"ט״ו בשבט", start:"2027-01-23", end:"2027-01-23", when:"שבת 23.1, חוגגים במעונות בשבוע שלפני"},
+    {name:"פורים", start:"2027-03-23", end:"2027-03-23", when:"יום שלישי 23.3"},
+    {name:"פסח", start:"2027-04-21", end:"2027-04-28", when:"ליל הסדר 21.4"},
+    {name:"ל״ג בעומר", start:"2027-05-25", end:"2027-05-25", when:"יום שלישי 25.5"},
+    {name:"שבועות", start:"2027-06-11", end:"2027-06-11", when:"יום שישי 11.6"}
+  ];
+  const QUESTIONS = ["יש כבר חוג תנועה במעון?", "כמה כיתות ובאילו גילאים?", "מי מחליטה על חוגים?", "מי משלם, המעון או ההורים?"];
+  const statusGroup = s => (STATUSES.find(x => x.v === s) || STATUSES[0]).g;
+  const statusRank = s => Math.max(0, STATUSES.findIndex(x => x.v === s));
+
+  const $ = id => document.getElementById(id);
+  const esc = s => String(s == null ? "" : s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+  const pad = n => String(n).padStart(2, "0");
+  const iso = d => d.getFullYear() + "-" + pad(d.getMonth()+1) + "-" + pad(d.getDate());
+  const todayIso = () => iso(new Date());
+  const dm = s => { if (!s) return ""; const p = s.split("-"); return Number(p[2]) + "." + Number(p[1]); };
+  const daysBetween = (a, b) => Math.round((new Date(b + "T12:00:00") - new Date(a + "T12:00:00")) / 86400000);
+  function addDays(n){ const d = new Date(); d.setDate(d.getDate() + n); return iso(d); }
+  function addWorkdays(n){ const d = new Date(); let c = 0; while (c < n){ d.setDate(d.getDate() + 1); const w = d.getDay(); if (w !== 5 && w !== 6) c++; } return iso(d); }
+
+  function nextHoliday(){ const t = todayIso(); return HOLIDAYS.find(h => h.end >= t) || null; }
+  function holidayLine(){
+    const h = nextHoliday(); if (!h) return "";
+    const d = daysBetween(todayIso(), h.start);
+    if (d > 45) return "";
+    return d <= 0 ? "ובימים של " + h.name + " אני מציעה גם הפעלת חג במעון." : "לקראת " + h.name + " אני מציעה גם הפעלת חג חגיגית במעון.";
+  }
+  function kind(l){ const t = l.type || ""; if (t.includes("מתנ")) return "matnas"; if (t.includes("פרטי")) return "private"; return "network"; }
+  function defaultMessage(l){
+    const hol = holidayLine(); const name = l.name || "המעון";
+    const sign = "ברכה בלומשטיין | ברכה בתנועה";
+    const optout = "אם זה לא רלוונטי, אפשר לכתוב לי ולא אפנה שוב.";
+    const k = kind(l);
+    if (k === "matnas") return ["שלום, כאן ברכה בלומשטיין מ\"ברכה בתנועה\".", "אני מדריכת תנועה לגיל הרך עם 20 שנות ניסיון, ומעבירה חוגי תנועה במעונות יום: שירים, אביזרים ומשחקי תנועה שמותאמים לתינוקייה, לפעוטות ולבוגרים.", ("אשמח להציע תוכנית תנועה שבועית לרשת המעונות של המתנ\"ס. " + hol).trim(), "עם מי נכון לדבר על זה?", optout, sign].join("\n");
+    if (k === "private") return ["שלום, כאן ברכה בלומשטיין מ\"ברכה בתנועה\".", "אני מדריכת תנועה לגיל הרך כבר 20 שנה, ורציתי להציע ל" + name + " חוג תנועה שבועי: שירים, אביזרים ומשחקי תנועה לפי גיל, שהילדים נהנים מהם וההורים שמחים לשמוע עליהם.", hol, "אפשר לספר לך עוד בשיחה של 5 דקות?", optout, sign].filter(Boolean).join("\n");
+    return ["שלום, כאן ברכה בלומשטיין מ\"ברכה בתנועה\".", "אני מדריכת תנועה לגיל הרך עם 20 שנות ניסיון. אני מעבירה מפגשי תנועה במעונות יום: מוטוריקה, קצב ושיווי משקל דרך שירים ומשחק, בהתאמה לכל כיתה ובשיתוף הצוות.", ("אשמח לספר על חוג שבועי ב" + name + ". " + hol).trim(), "מתי נוח לשיחה קצרה?", optout, sign].join("\n");
+  }
+  function waNumber(phone){ const d = String(phone || "").replace(/\D/g, ""); return /^05\d{8}$/.test(d) ? "972" + d.slice(1) : null; }
+
+  // ---------- state ----------
+  let db = null, leads = [], loaded = false, failed = false;
+  let filter = "all", query = "", expandedId = null;
+  const dirty = {}, msgDirty = {}, cache = new Map(), queues = {};
+
+  // ---------- toast / notice ----------
+  let toastTimer = null;
+  function toast(text){ const t = $("toast"); t.textContent = text; t.hidden = false; clearTimeout(toastTimer); toastTimer = setTimeout(() => { t.hidden = true; }, 2200); }
+  function setNotice(text){ const n = $("notice"); n.textContent = text || ""; n.hidden = !text; }
+
+  // ---------- header ----------
+  function renderHoliday(){
+    const h = nextHoliday(), el = $("holiday");
+    if (!h){ el.hidden = true; return; }
+    const d = daysBetween(todayIso(), h.start);
+    const big = d > 0 ? d : "עכשיו";
+    const unit = d > 1 ? "ימים" : d === 1 ? "יום" : "";
+    el.innerHTML = '<span class="days">' + esc(big) + '</span><span class="txt"><strong>' + (d > 0 ? esc(unit) + " ל" + esc(h.name) : esc(h.name)) + '</strong><small>' + esc(h.when) + ". זמן טוב להציע הפעלת חג.</small></span>";
+    el.hidden = false;
+  }
+  function renderPipeline(){
+    const counts = {}; GROUPS.forEach(g => counts[g.g] = 0);
+    leads.forEach(l => counts[statusGroup(l.status)]++);
+    $("bar").innerHTML = GROUPS.filter(g => counts[g.g]).map(g => '<span class="g-' + g.g + '" style="flex-grow:' + counts[g.g] + '"></span>').join("");
+    $("legend").innerHTML = GROUPS.map(g => '<button type="button" data-filter="' + g.g + '" aria-pressed="' + (filter === g.g) + '"><b>' + counts[g.g] + '</b><span><i class="dot g-' + g.g + '"></i>' + esc(g.label) + '</span></button>').join("");
+    $("sub").textContent = "יבנה · גיל 0–3 · " + leads.length + " מעונות";
+  }
+
+  // ---------- today ----------
+  function todayItems(){
+    const t = todayIso();
+    const due = leads.filter(l => l.nextDate && l.nextDate <= t && l.status !== "לא רלוונטי")
+      .sort((a, b) => a.nextDate.localeCompare(b.nextDate) || (a.priority || "B").localeCompare(b.priority || "B"));
+    const fresh = leads.filter(l => !due.includes(l) && l.status === "חדש" && l.priority === "A")
+      .sort((a, b) => a.id.localeCompare(b.id));
+    return due.concat(fresh).slice(0, 5).map(l => ({ l, late: l.nextDate && l.nextDate < t, now: l.nextDate === t }));
+  }
+  function renderToday(){
+    const items = todayItems(), ul = $("today");
+    if (!loaded && !leads.length){ ul.innerHTML = '<li class="empty">טוענת את רשימת המעונות…</li>'; $("today-note").textContent = ""; return; }
+    if (!items.length){ ul.innerHTML = '<li class="empty">אין למי לחזור היום. כשתעדכני תאריך לפעולה הבאה, המעון יופיע כאן ביום הזה.</li>'; $("today-note").textContent = ""; return; }
+    $("today-note").textContent = "קודם מה שהמועד שלו הגיע, אחר כך לידים חמים חדשים";
+    ul.innerHTML = items.map(({l, late, now}) => {
+      const cls = late ? "late" : now ? "now" : "fresh";
+      const lbl = late ? "באיחור · " + dm(l.nextDate) : now ? "היום" : "חדש · A";
+      return '<li><button type="button" data-open="' + esc(l.id) + '"><span class="when ' + cls + '">' + esc(lbl) + '</span><span class="who"><b>' + esc(l.name) + '</b><small>' + esc(l.nextAction || "פנייה ראשונה") + '</small></span><span class="go">פתיחה ›</span></button></li>';
+    }).join("");
+  }
+
+  // ---------- list ----------
+  const PRI = {A:0, B:1, C:2};
+  const GORDER = {offer:0, active:1, new:2, won:3, parked:4};
+  function visibleLeads(){
+    const q = query.trim();
+    return leads.filter(l => {
+      if (filter === "A" && l.priority !== "A") return false;
+      if (filter !== "all" && filter !== "A" && statusGroup(l.status) !== filter) return false;
+      if (q && ![l.name, l.address, l.operator, l.type, l.notes].some(v => String(v || "").includes(q))) return false;
+      return true;
+    }).sort((a, b) => (PRI[a.priority] ?? 1) - (PRI[b.priority] ?? 1) || GORDER[statusGroup(a.status)] - GORDER[statusGroup(b.status)] || a.id.localeCompare(b.id));
+  }
+  function renderFilters(){
+    const opts = [{f:"all", label:"הכל"}, {f:"A", label:"עדיפות A"}].concat(GROUPS.map(g => ({f:g.g, label:g.label})));
+    $("filters").innerHTML = opts.map(o => '<button type="button" class="chip" data-filter="' + o.f + '" aria-pressed="' + (filter === o.f) + '">' + esc(o.label) + '</button>').join("");
+  }
+  function nextLine(l){
+    const t = todayIso();
+    if (!l.nextAction && !l.nextDate) return "";
+    let due = "";
+    if (l.nextDate){ due = l.nextDate < t ? "באיחור, " + dm(l.nextDate) : l.nextDate === t ? "היום" : dm(l.nextDate); }
+    return '<span class="lead-next">' + (due ? '<span class="due">' + esc(due) + '</span> · ' : "") + esc(l.nextAction || "") + '</span>';
+  }
+  function buildCard(l){
+    const id = l.id, open = expandedId === id, g = statusGroup(l.status);
+    const el = document.createElement("article");
+    el.className = "lead" + (open ? " open" : ""); el.id = "lead-" + id; el.dataset.id = id;
+    let html = '<button type="button" class="lead-head" data-toggle="' + esc(id) + '" aria-expanded="' + open + '">'
+      + '<span class="pri ' + esc(l.priority || "B") + '" title="עדיפות">' + esc(l.priority || "B") + '</span>'
+      + '<span class="lead-main"><span class="lead-name">' + esc(l.name) + '</span><span class="lead-sub">' + esc([l.type, l.address].filter(Boolean).join(" · ")) + '</span>' + nextLine(l) + '</span>'
+      + '<span class="status st-' + g + '">' + esc(l.status || "חדש") + '</span></button>';
+    if (open){
+      const wa = waNumber(l.phone), msg = l.message || defaultMessage(l);
+      const facts = [["רשת / מפעיל", l.operator], ["גילאים", l.ages], ["עד כמה ילדים", l.maxKids], ["מקור", l.source], ["הערות מהמחקר", l.researchNotes]].filter(f => f[1]);
+      html += '<div class="panel">'
+        + '<div class="block"><span class="label">יצירת קשר</span><div class="contact">'
+        + (l.phone ? '<span class="phone">' + esc(l.phone) + '</span><button type="button" class="btn" data-copy-phone="' + esc(id) + '">העתקת המספר</button>' : '<span class="hint">אין עדיין טלפון. כדאי לחפש בגוגל או לקפוץ לביקור.</span>')
+        + (l.email ? '<span class="hint" style="direction:ltr;unicode-bidi:isolate">' + esc(l.email) + '</span>' : '')
+        + '</div></div>'
+        + (facts.length ? '<dl class="facts">' + facts.map(f => '<div><dt>' + esc(f[0]) + '</dt><dd>' + esc(f[1]) + '</dd></div>').join("") + '</dl>' : '')
+        + '<div class="block"><span class="label">סטטוס</span><div class="statuses">' + STATUSES.map(s => '<button type="button" class="st-' + s.g + '" data-status="' + esc(s.v) + '" data-id="' + esc(id) + '" aria-pressed="' + ((l.status || "חדש") === s.v) + '">' + esc(s.v) + '</button>').join("") + '</div></div>'
+        + '<div class="block"><span class="label">עדכון מהיר</span><div class="row">'
+        + '<button type="button" class="btn" data-quick="noanswer" data-id="' + esc(id) + '">לא ענו · לחזור בעוד 3 ימים</button>'
+        + '<button type="button" class="btn" data-quick="sent" data-id="' + esc(id) + '">שלחתי הודעה</button>'
+        + '<button type="button" class="btn" data-quick="later" data-id="' + esc(id) + '">לא עכשיו · לחזור בעוד חודש</button>'
+        + '</div></div>'
+        + '<div class="block"><div class="two">'
+        + '<div class="field"><label for="f-' + esc(id) + '-next">הפעולה הבאה</label><input id="f-' + esc(id) + '-next" data-field="nextAction" value="' + esc(l.nextAction || "") + '"></div>'
+        + '<div class="field"><label for="f-' + esc(id) + '-date">מתי</label><input id="f-' + esc(id) + '-date" type="date" data-field="nextDate" value="' + esc(l.nextDate || "") + '"></div>'
+        + '</div><div class="field"><label for="f-' + esc(id) + '-notes">הערות שלי</label><textarea id="f-' + esc(id) + '-notes" data-field="notes" placeholder="מה סוכם, כמה כיתות, מי מחליטה…">' + esc(l.notes || "") + '</textarea></div>'
+        + '<div><button type="button" class="btn primary" data-save="' + esc(id) + '">שמירה</button></div></div>'
+        + '<div class="block"><span class="label">הודעת פתיחה מוכנה</span>'
+        + '<textarea class="msg" id="f-' + esc(id) + '-msg" data-msg="' + esc(id) + '" aria-label="נוסח ההודעה">' + esc(msg) + '</textarea>'
+        + '<div class="row"><button type="button" class="btn primary" data-copy-msg="' + esc(id) + '">העתקת ההודעה</button>'
+        + (wa ? '<a class="btn wa" target="_blank" rel="noopener" data-wa="' + esc(id) + '" href="https://wa.me/' + wa + '?text=' + encodeURIComponent(msg) + '">פתיחה בוואטסאפ</a>' : '')
+        + '<button type="button" class="btn" data-save-msg="' + esc(id) + '">שמירת הנוסח</button></div>'
+        + (wa ? '' : '<p class="hint">המספר הוא קו נייח. עדיף להתקשר ולשלוח את ההודעה אחרי השיחה, לנייד של המנהלת.</p>')
+        + '</div>'
+        + '<div class="block"><span class="label">4 שאלות לשיחת בירור</span><ol class="questions">' + QUESTIONS.map(q => '<li>' + esc(q) + '</li>').join("") + '</ol></div>'
+        + '</div>';
+    }
+    el.innerHTML = html;
+    return el;
+  }
+  function renderList(){
+    const list = $("list"), vis = visibleLeads();
+    $("count").textContent = vis.length === leads.length ? "" : vis.length + " מתוך " + leads.length;
+    if (!leads.length){
+      list.innerHTML = loaded || failed ? '<p class="empty">אין עדיין מעונות בלוח. אפשר להוסיף את הראשון למטה.</p>' : '<p class="empty">טוענת את רשימת המעונות…</p>';
+      cache.clear(); return;
+    }
+    if (!vis.length){ list.innerHTML = '<p class="empty">אין מעונות שמתאימים לסינון הזה.</p>'; return; }
+    const els = vis.map(l => {
+      const key = JSON.stringify(l) + "|" + (expandedId === l.id) + "|" + todayIso();
+      const c = cache.get(l.id);
+      if (c && (c.key === key || (expandedId === l.id && (dirty[l.id] || msgDirty[l.id])))) return c.el;
+      const el = buildCard(l); cache.set(l.id, {key, el}); return el;
+    });
+    const same = list.children.length === els.length && els.every((e, i) => list.children[i] === e);
+    if (!same) list.replaceChildren(...els);
+  }
+  function renderAll(){ renderHoliday(); renderPipeline(); renderToday(); renderFilters(); renderList(); }
+
+  // ---------- writes ----------
+  function errText(e){
+    const c = e && e.code;
+    if (c === "invalid_argument") return "אין הרשאה לשמור בלוח הזה";
+    if (c === "quota_exceeded") return "הלוח מלא. צריך למחוק מעונות ישנים";
+    return "השמירה לא הצליחה. נסי שוב בעוד רגע";
+  }
+  function collect(id){
+    const card = $("lead-" + id); const out = {};
+    if (!card) return out;
+    card.querySelectorAll("[data-field]").forEach(i => { out[i.dataset.field] = i.value.trim(); });
+    if (msgDirty[id]){ const m = card.querySelector("[data-msg]"); if (m) out.message = m.value; }
+    return out;
+  }
+  function save(id, patch, okText){
+    if (!db){ toast("אפשר לשמור רק כשהלוח פתוח מתוך Claude"); return Promise.resolve(); }
+    const ref = db.collection("leads").doc(id);
+    const body = Object.assign({}, patch, {updatedAt: new Date().toISOString()});
+    const p = (queues[id] || Promise.resolve()).then(() => ref.update(body));
+    queues[id] = p.catch(() => {});
+    return p.then(() => { delete dirty[id]; delete msgDirty[id]; toast(okText || "נשמר"); }, e => toast(errText(e)));
+  }
+  const findLead = id => leads.find(l => l.id === id) || {};
+  function prependNote(id, text){ const cur = collect(id).notes ?? (findLead(id).notes || ""); const line = dm(todayIso()) + " · " + text; return cur ? line + "\n" + cur : line; }
+
+  async function copyText(text, fallbackEl){
+    try { await navigator.clipboard.writeText(text); toast("הועתק"); }
+    catch (e){ if (fallbackEl && fallbackEl.select){ fallbackEl.focus(); fallbackEl.select(); toast("הטקסט מסומן. אפשר להעתיק ידנית"); } else toast("לא הצלחתי להעתיק. אפשר לסמן ולהעתיק ידנית"); }
+  }
+
+  function openLead(id){
+    filter = "all"; query = ""; $("search").value = ""; expandedId = id; renderAll();
+    const el = $("lead-" + id);
+    if (el){ const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches; el.scrollIntoView({behavior: reduce ? "auto" : "smooth", block:"start"}); }
+  }
+
+  // ---------- events ----------
+  document.addEventListener("click", e => {
+    const t = e.target.closest("button, a"); if (!t) return;
+    const d = t.dataset;
+    if (d.filter){ filter = (filter === d.filter && d.filter !== "all") ? "all" : d.filter; renderAll(); return; }
+    if (d.open){ openLead(d.open); return; }
+    if (d.toggle){
+      const id = d.toggle, prev = expandedId;
+      if (prev && (dirty[prev] || msgDirty[prev])) save(prev, collect(prev), "השינויים נשמרו");
+      expandedId = prev === id ? null : id; renderList(); return;
+    }
+    if (d.status){
+      const id = d.id, l = findLead(id);
+      if (l.status === d.status && !dirty[id]) return;
+      save(id, Object.assign(collect(id), {status: d.status}), "הסטטוס עודכן: " + d.status); return;
+    }
+    if (d.quick){
+      const id = d.id, cur = findLead(id).status || "חדש", base = collect(id);
+      let patch;
+      if (d.quick === "noanswer") patch = {nextDate: addWorkdays(3), nextAction: "לנסות שוב", notes: prependNote(id, "לא ענו"), status: cur === "חדש" ? "לאמת" : cur};
+      else if (d.quick === "sent") patch = {nextDate: addWorkdays(3), nextAction: "מעקב אחרי ההודעה", notes: prependNote(id, "נשלחה הודעה"), status: statusRank(cur) < statusRank("נוצר קשר") ? "נוצר קשר" : cur};
+      else patch = {nextDate: addDays(30), nextAction: "לחזור עם הצעה לחג הבא", notes: prependNote(id, "ביקשו לחזור מאוחר יותר"), status: "לא עכשיו"};
+      save(id, Object.assign(base, patch), "עודכן. נחזור אליהם ב-" + dm(patch.nextDate)); return;
+    }
+    if (d.save){ save(d.save, collect(d.save)); return; }
+    if (d.saveMsg){ const id = d.saveMsg; msgDirty[id] = true; save(id, collect(id), "הנוסח נשמר"); return; }
+    if (d.copyMsg){ const m = $("f-" + d.copyMsg + "-msg"); copyText(m ? m.value : "", m); return; }
+    if (d.copyPhone){ copyText(findLead(d.copyPhone).phone || ""); return; }
+  });
+  document.addEventListener("input", e => {
+    const t = e.target;
+    if (t.id === "search"){ query = t.value; renderList(); return; }
+    const card = t.closest(".lead"); if (!card) return;
+    const id = card.dataset.id;
+    if (t.dataset.msg){
+      msgDirty[id] = true;
+      const a = card.querySelector("[data-wa]");
+      if (a){ const wa = waNumber(findLead(id).phone); if (wa) a.href = "https://wa.me/" + wa + "?text=" + encodeURIComponent(t.value); }
+    } else if (t.dataset.field) dirty[id] = true;
+  });
+  $("add-form").addEventListener("submit", async e => {
+    e.preventDefault();
+    const name = $("add-name").value.trim();
+    if (!name){ toast("צריך לכתוב שם למעון"); $("add-name").focus(); return; }
+    if (!db){ toast("אפשר להוסיף רק כשהלוח פתוח מתוך Claude"); return; }
+    const id = "N-" + Date.now().toString(36);
+    const body = {name, address: $("add-address").value.trim(), phone: $("add-phone").value.trim(), type: $("add-type").value, priority: $("add-pri").value,
+      status: "חדש", nextAction: "לאמת בטלפון: מנהלת, כיתות, יש חוג?", nextDate: "", notes: "", source: "הוספה ידנית", updatedAt: new Date().toISOString()};
+    try { await db.collection("leads").doc(id).set(body); e.target.reset(); $("add-pri").value = "B"; toast("המעון נוסף ללוח"); }
+    catch (err){ toast(errText(err)); }
+  });
+
+  // ---------- boot ----------
+  renderAll();
+  const timer = setTimeout(() => { if (!loaded) setNotice("הרשימה עוד לא נטענה. אם זה נמשך, כדאי לבדוק את החיבור לאינטרנט."); }, 10000);
+  (async () => {
+    try { db = window.claude && window.claude.use ? await window.claude.use("db") : null; } catch (e){ db = null; }
+    if (!db){ clearTimeout(timer); failed = true; setNotice("כדי לראות ולשמור את הרשימה, צריך לפתוח את הלוח מתוך Claude כשאת מחוברת לחשבון."); renderAll(); return; }
+    db.collection("leads").onSnapshot(snap => {
+      leads = snap.docs.map(d => Object.assign({id: d.id}, d.data()));
+      if (!snap.metadata.fromCache){ loaded = true; clearTimeout(timer); setNotice(""); }
+      renderAll();
+    }, err => {
+      clearTimeout(timer); failed = true; loaded = true;
+      setNotice(err && err.code === "revoked" ? "הגישה ללוח השתנתה. אפשר לרענן את הדף." : "לא הצלחתי לטעון את הרשימה. אפשר לנסות לרענן את הדף.");
+      renderAll();
+    });
+  })();
+})();
+</script>
